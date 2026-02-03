@@ -12,12 +12,18 @@ import os
 import re
 from datetime import datetime
 
-# Try to import anthropic
+# Try to import LLM libraries
 try:
     import anthropic
     HAS_ANTHROPIC = True
 except ImportError:
     HAS_ANTHROPIC = False
+
+try:
+    import openai
+    HAS_OPENAI = True
+except ImportError:
+    HAS_OPENAI = False
 
 DECOMPOSITION_PROMPT = """You are a task decomposition expert. Break down the following task into concrete, actionable subtasks.
 
@@ -82,6 +88,40 @@ def smart_decompose(task_text, api_key=None):
             result = json.loads(json_match.group())
             result["original_task"] = task_text
             result["method"] = "llm"
+            return result, None
+        else:
+            return None, "Could not parse JSON from response"
+            
+    except Exception as e:
+        return None, str(e)
+
+def openai_decompose(task_text, api_key=None):
+    """Use OpenAI GPT-4 as fallback for decomposition"""
+    if not HAS_OPENAI:
+        return None, "openai package not installed"
+    
+    key = api_key or os.environ.get("OPENAI_API_KEY")
+    if not key:
+        return None, "No OpenAI API key available"
+    
+    try:
+        client = openai.OpenAI(api_key=key)
+        
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            max_tokens=2000,
+            messages=[
+                {"role": "user", "content": DECOMPOSITION_PROMPT.format(task=task_text)}
+            ]
+        )
+        
+        response_text = response.choices[0].message.content
+        
+        json_match = re.search(r'\{[\s\S]*\}', response_text)
+        if json_match:
+            result = json.loads(json_match.group())
+            result["original_task"] = task_text
+            result["method"] = "openai"
             return result, None
         else:
             return None, "Could not parse JSON from response"
@@ -206,11 +246,17 @@ def main():
         return
     
     if args.smart:
+        # Try Anthropic first
         result, error = smart_decompose(args.task, args.api_key)
         if error:
-            print(f"⚠️  Smart decomposition failed: {error}")
-            print("Falling back to rule-based...")
-            result = rule_based_decompose(args.task)
+            print(f"⚠️  Anthropic failed: {error}")
+            # Fallback to OpenAI
+            print("Trying OpenAI...")
+            result, error2 = openai_decompose(args.task)
+            if error2:
+                print(f"⚠️  OpenAI failed: {error2}")
+                print("Falling back to rule-based...")
+                result = rule_based_decompose(args.task)
     else:
         result = rule_based_decompose(args.task)
     
