@@ -1,229 +1,220 @@
 #!/usr/bin/env python3
 """
-Task Decomposer - Break complex tasks into subtasks
+Task Decomposer - Break complex tasks into subtasks using LLM reasoning
 
-This is a rule-based decomposer. For best results, integrate with
-the main agent's reasoning capabilities.
+Uses Claude via Anthropic API for intelligent decomposition.
+Falls back to rule-based if no API key available.
 """
 
 import argparse
 import json
-import yaml
+import os
 import re
 from datetime import datetime
 
-# Domain keywords for task categorization
-DOMAINS = {
-    "trading": ["trade", "buy", "sell", "price", "market", "portfolio", "balance", "order"],
-    "coding": ["code", "script", "function", "api", "implement", "build", "create", "fix", "bug"],
-    "research": ["research", "find", "search", "learn", "understand", "analyze", "study"],
-    "writing": ["write", "document", "draft", "compose", "summarize", "explain"],
-    "devops": ["deploy", "server", "service", "monitor", "backup", "config", "setup"],
-    "social": ["post", "tweet", "reply", "engage", "moltbook", "share"],
-    "data": ["data", "database", "query", "fetch", "store", "process"],
-}
+# Try to import anthropic
+try:
+    import anthropic
+    HAS_ANTHROPIC = True
+except ImportError:
+    HAS_ANTHROPIC = False
 
-# Effort estimates by domain (minutes)
-EFFORT_ESTIMATES = {
-    "trading": 5,
-    "coding": 15,
-    "research": 10,
-    "writing": 10,
-    "devops": 20,
-    "social": 5,
-    "data": 10,
-    "unknown": 10,
-}
+DECOMPOSITION_PROMPT = """You are a task decomposition expert. Break down the following task into concrete, actionable subtasks.
 
-def identify_domains(task_text):
-    """Identify which domains a task touches"""
-    text_lower = task_text.lower()
-    found_domains = []
-    
-    for domain, keywords in DOMAINS.items():
-        for keyword in keywords:
-            if keyword in text_lower:
-                if domain not in found_domains:
-                    found_domains.append(domain)
-                break
-    
-    return found_domains if found_domains else ["unknown"]
+TASK: {task}
 
-def extract_actions(task_text):
-    """Extract action verbs from task"""
-    action_words = [
-        "build", "create", "implement", "write", "design", "setup",
-        "fetch", "get", "find", "search", "analyze", "calculate",
-        "send", "post", "share", "update", "modify", "fix",
-        "monitor", "check", "verify", "test", "deploy", "configure"
-    ]
-    
-    text_lower = task_text.lower()
-    found_actions = []
-    
-    for action in action_words:
-        if action in text_lower:
-            found_actions.append(action)
-    
-    return found_actions
+Respond with a JSON object containing:
+{{
+  "subtasks": [
+    {{
+      "id": "unique_id",
+      "description": "Clear, actionable description",
+      "domain": "coding|research|writing|trading|devops|social|data|unknown",
+      "estimated_minutes": <number>,
+      "dependencies": ["id of tasks this depends on"],
+      "can_parallelize": true/false,
+      "tools_needed": ["optional list of tools/apis needed"]
+    }}
+  ],
+  "complexity": "simple|medium|complex",
+  "total_estimated_minutes": <number>,
+  "critical_path": ["ids of tasks on critical path"],
+  "risks": ["potential blockers or challenges"],
+  "recommendation": "brief strategy recommendation"
+}}
 
-def decompose_task(task_text):
-    """Decompose a task into subtasks"""
-    domains = identify_domains(task_text)
-    actions = extract_actions(task_text)
+Guidelines:
+- Break into 3-8 subtasks for most tasks
+- Be specific about what each subtask produces
+- Identify true dependencies (what MUST happen before what)
+- Mark tasks that can run in parallel
+- Estimate realistically (include buffer for unknowns)
+- Identify the critical path (longest chain of dependencies)
+
+Respond ONLY with valid JSON, no other text."""
+
+def smart_decompose(task_text, api_key=None):
+    """Use Claude to intelligently decompose a task"""
+    if not HAS_ANTHROPIC:
+        return None, "anthropic package not installed"
+    
+    key = api_key or os.environ.get("ANTHROPIC_API_KEY")
+    if not key:
+        return None, "No API key available"
+    
+    try:
+        client = anthropic.Anthropic(api_key=key)
+        
+        message = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=2000,
+            messages=[
+                {"role": "user", "content": DECOMPOSITION_PROMPT.format(task=task_text)}
+            ]
+        )
+        
+        response_text = message.content[0].text
+        
+        # Parse JSON from response
+        # Try to find JSON in the response
+        json_match = re.search(r'\{[\s\S]*\}', response_text)
+        if json_match:
+            result = json.loads(json_match.group())
+            result["original_task"] = task_text
+            result["method"] = "llm"
+            return result, None
+        else:
+            return None, "Could not parse JSON from response"
+            
+    except Exception as e:
+        return None, str(e)
+
+def rule_based_decompose(task_text):
+    """Fallback rule-based decomposition"""
+    # Domain keywords
+    domains = {
+        "trading": ["trade", "buy", "sell", "price", "market", "portfolio"],
+        "coding": ["code", "script", "function", "api", "implement", "build"],
+        "research": ["research", "find", "search", "learn", "analyze"],
+        "writing": ["write", "document", "draft", "compose"],
+        "devops": ["deploy", "server", "monitor", "backup", "config"],
+        "data": ["data", "database", "query", "fetch", "store"],
+    }
+    
+    def get_domain(text):
+        text_lower = text.lower()
+        for domain, keywords in domains.items():
+            if any(kw in text_lower for kw in keywords):
+                return domain
+        return "unknown"
+    
+    # Split on conjunctions
+    parts = re.split(r',\s*(?:and|then|plus)\s*|\s+and\s+|\s+then\s+', task_text)
+    parts = [p.strip() for p in parts if len(p.strip()) > 5]
     
     subtasks = []
-    
-    # Split by conjunctions
-    parts = re.split(r',\s*(?:and|then|with|plus)\s*|\s+and\s+|\s+then\s+', task_text)
-    
     for i, part in enumerate(parts):
-        part = part.strip()
-        if len(part) < 5:
-            continue
-            
-        part_domains = identify_domains(part)
-        primary_domain = part_domains[0] if part_domains else "unknown"
-        
-        subtask = {
+        subtasks.append({
             "id": f"task_{i+1}",
             "description": part,
-            "domain": primary_domain,
-            "estimated_minutes": EFFORT_ESTIMATES.get(primary_domain, 10),
+            "domain": get_domain(part),
+            "estimated_minutes": 15,
             "dependencies": [f"task_{i}"] if i > 0 else [],
-            "can_parallelize": primary_domain != identify_domains(parts[i-1])[0] if i > 0 else True
-        }
-        subtasks.append(subtask)
-    
-    # If no natural splits, create generic subtasks
-    if len(subtasks) <= 1:
-        subtasks = []
-        if "research" in domains or "find" in task_text.lower():
-            subtasks.append({
-                "id": "research",
-                "description": f"Research and gather information about: {task_text}",
-                "domain": "research",
-                "estimated_minutes": 10,
-                "dependencies": [],
-                "can_parallelize": True
-            })
-        
-        if "coding" in domains or any(a in ["build", "create", "implement"] for a in actions):
-            subtasks.append({
-                "id": "implement",
-                "description": f"Implement the solution",
-                "domain": "coding",
-                "estimated_minutes": 15,
-                "dependencies": ["research"] if "research" in [s["id"] for s in subtasks] else [],
-                "can_parallelize": False
-            })
-        
-        subtasks.append({
-            "id": "verify",
-            "description": "Test and verify the result",
-            "domain": "devops",
-            "estimated_minutes": 5,
-            "dependencies": [subtasks[-1]["id"]] if subtasks else [],
-            "can_parallelize": False
+            "can_parallelize": i == 0
         })
     
-    total_time = sum(s["estimated_minutes"] for s in subtasks)
-    parallel_tasks = sum(1 for s in subtasks if s["can_parallelize"])
+    if len(subtasks) <= 1:
+        subtasks = [
+            {"id": "plan", "description": f"Plan approach for: {task_text}", "domain": "research", "estimated_minutes": 10, "dependencies": [], "can_parallelize": True},
+            {"id": "execute", "description": "Execute the plan", "domain": get_domain(task_text), "estimated_minutes": 30, "dependencies": ["plan"], "can_parallelize": False},
+            {"id": "verify", "description": "Test and verify results", "domain": "devops", "estimated_minutes": 10, "dependencies": ["execute"], "can_parallelize": False},
+        ]
     
     return {
         "original_task": task_text,
-        "domains": domains,
-        "actions": actions,
-        "complexity": "simple" if len(subtasks) <= 2 else "medium" if len(subtasks) <= 5 else "complex",
         "subtasks": subtasks,
-        "total_estimated_minutes": total_time,
-        "parallelizable_subtasks": parallel_tasks,
-        "recommendation": get_recommendation(subtasks)
+        "complexity": "simple" if len(subtasks) <= 3 else "medium" if len(subtasks) <= 6 else "complex",
+        "total_estimated_minutes": sum(s["estimated_minutes"] for s in subtasks),
+        "recommendation": "Rule-based decomposition - consider using --smart for better results",
+        "method": "rule-based"
     }
 
-def get_recommendation(subtasks):
-    """Get execution recommendation based on decomposition"""
-    count = len(subtasks)
-    
-    if count <= 2:
-        return "Execute directly - simple enough to handle in one pass"
-    elif count <= 5:
-        return "Execute sequentially - moderate complexity, maintain context"
-    else:
-        return "Consider sub-agents - complex task benefits from parallelization"
-
-def format_output(result, format_type):
+def format_output(result, format_type="pretty"):
     """Format the decomposition result"""
     if format_type == "json":
         return json.dumps(result, indent=2)
     
-    elif format_type == "yaml":
-        return yaml.dump(result, default_flow_style=False, sort_keys=False)
+    # Pretty print
+    lines = [
+        f"📋 TASK DECOMPOSITION",
+        f"",
+        f"📝 {result['original_task']}",
+        f"",
+        f"⚡ Complexity: {result.get('complexity', 'unknown')}",
+        f"⏱️  Total Time: {result.get('total_estimated_minutes', '?')} min",
+        f"🔧 Method: {result.get('method', 'unknown')}",
+        f"",
+        f"📝 SUBTASKS:",
+    ]
     
-    elif format_type == "markdown":
-        lines = [
-            f"# Task Decomposition",
-            f"",
-            f"**Original:** {result['original_task']}",
-            f"",
-            f"**Domains:** {', '.join(result['domains'])}",
-            f"**Complexity:** {result['complexity']}",
-            f"**Estimated Time:** {result['total_estimated_minutes']} minutes",
-            f"",
-            f"## Subtasks",
-            f""
-        ]
+    for st in result.get("subtasks", []):
+        deps = st.get("dependencies", [])
+        dep_str = f" → after [{', '.join(deps)}]" if deps else ""
+        para = "∥" if st.get("can_parallelize") else "→"
         
-        for st in result['subtasks']:
-            deps = f" (after: {', '.join(st['dependencies'])})" if st['dependencies'] else ""
-            lines.append(f"- [ ] **{st['id']}**: {st['description']}{deps}")
-            lines.append(f"  - Domain: {st['domain']} | Est: {st['estimated_minutes']}min | Parallel: {'✓' if st['can_parallelize'] else '✗'}")
+        lines.append(f"")
+        lines.append(f"   {para} [{st['id']}] {st['description']}")
+        lines.append(f"      {st.get('domain', '?')} | {st.get('estimated_minutes', '?')}min{dep_str}")
         
-        lines.extend([
-            f"",
-            f"## Recommendation",
-            f"",
-            f"{result['recommendation']}"
-        ])
-        
-        return "\n".join(lines)
+        if st.get("tools_needed"):
+            lines.append(f"      🔧 Tools: {', '.join(st['tools_needed'])}")
     
-    else:  # pretty print
-        print(f"📋 TASK DECOMPOSITION\n")
-        print(f"Original: {result['original_task']}\n")
-        print(f"🏷️  Domains: {', '.join(result['domains'])}")
-        print(f"⚡ Complexity: {result['complexity']}")
-        print(f"⏱️  Total Est. Time: {result['total_estimated_minutes']} min\n")
-        
-        print("📝 Subtasks:")
-        for st in result['subtasks']:
-            deps = f" → needs [{', '.join(st['dependencies'])}]" if st['dependencies'] else ""
-            para = "∥" if st['can_parallelize'] else "→"
-            print(f"   {para} [{st['id']}] {st['description'][:50]}...")
-            print(f"      {st['domain']} | {st['estimated_minutes']}min{deps}")
-        
-        print(f"\n💡 {result['recommendation']}")
-        return ""
+    # Critical path
+    if result.get("critical_path"):
+        lines.append(f"")
+        lines.append(f"🔥 Critical Path: {' → '.join(result['critical_path'])}")
+    
+    # Risks
+    if result.get("risks"):
+        lines.append(f"")
+        lines.append(f"⚠️  Risks:")
+        for risk in result["risks"]:
+            lines.append(f"   • {risk}")
+    
+    # Recommendation
+    if result.get("recommendation"):
+        lines.append(f"")
+        lines.append(f"💡 {result['recommendation']}")
+    
+    return "\n".join(lines)
 
 def main():
-    parser = argparse.ArgumentParser(description="Decompose complex tasks")
+    parser = argparse.ArgumentParser(description="Decompose complex tasks into subtasks")
     parser.add_argument("task", nargs="?", help="Task to decompose")
-    parser.add_argument("--format", choices=["json", "yaml", "markdown", "pretty"], 
-                       default="pretty", help="Output format")
+    parser.add_argument("--smart", action="store_true", help="Use LLM for intelligent decomposition")
+    parser.add_argument("--format", choices=["json", "pretty"], default="pretty")
+    parser.add_argument("--api-key", help="Anthropic API key (or set ANTHROPIC_API_KEY)")
     
     args = parser.parse_args()
     
     if not args.task:
-        print("Usage: decompose.py 'Your complex task description'")
-        print("\nExample:")
-        print("  decompose.py 'Build a trading bot that fetches prices, calculates signals, and places orders'")
+        print("Usage: decompose.py [--smart] 'Your complex task'")
+        print("")
+        print("Examples:")
+        print("  decompose.py 'Build a trading bot with signals and alerts'")
+        print("  decompose.py --smart 'Write a book, create marketing, launch on Amazon'")
         return
     
-    result = decompose_task(args.task)
-    output = format_output(result, args.format)
+    if args.smart:
+        result, error = smart_decompose(args.task, args.api_key)
+        if error:
+            print(f"⚠️  Smart decomposition failed: {error}")
+            print("Falling back to rule-based...")
+            result = rule_based_decompose(args.task)
+    else:
+        result = rule_based_decompose(args.task)
     
-    if output:
-        print(output)
+    print(format_output(result, args.format))
 
 if __name__ == "__main__":
     main()
