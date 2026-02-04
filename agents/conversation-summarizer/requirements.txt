@@ -1,0 +1,7 @@
+# Conversation Summarizer Dependencies
+# Currently uses only Python standard library
+
+# Future enhancements may add:
+# pyyaml>=6.0        # For YAML memory file support
+# anthropic>=0.20.0  # For Claude integration (semantic analysis)
+# numpy>=1.24.0      # For numerical analysis of metrics
