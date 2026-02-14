@@ -1,0 +1,107 @@
+# Helios Agents — Searchable Index
+## Features (by version)
+v1.3.0: Multi-category agent collection with 15+ specialized agents
+v1.2.0: Trading & finance agent category with API integrations
+v1.1.0: Self-improvement agents with goal tracking
+v1.0.0: Basic agent framework with Cortex integration
+
+## Log Signatures
+PATTERN: Agent activated | GREP: "agent.*activated.*helios-agents"
+PATTERN: Cortex integration | GREP: "cortex_add.*importance.*2\.[0-9]"
+PATTERN: Trading agent active | GREP: "market-sentiment|whale-tracker|portfolio-rebalancer"
+PATTERN: Self-improvement cycle | GREP: "self-reflection|goal-tracker|capability-gap"
+PATTERN: Content generation | GREP: "thread-composer|content-calendar|engagement-optimizer"
+PATTERN: System monitoring | GREP: "health-monitor|log-analyst|config-auditor"
+PATTERN: Research active | GREP: "paper-reader|codebase-learner|api-explorer"
+PATTERN: Agent conflict | GREP: "resource.*conflict.*agent"
+PATTERN: Installation complete | GREP: "symlink.*skills.*agent"
+PATTERN: Category created | GREP: "cortex_create_category.*agent"
+
+## Agent Categories
+TRADING: market-sentiment-analyst, whale-tracker, portfolio-rebalancer, dex-arbitrage-scout, tokenomics-analyst, tax-lot-optimizer
+SELF_IMPROVEMENT: self-reflection-coach, goal-tracker, capability-gap-analyzer, prompt-self-improver  
+SOCIAL: engagement-optimizer, thread-composer, content-calendar, reply-prioritizer
+DEVOPS: health-monitor, log-analyst, config-auditor, backup-manager
+RESEARCH: paper-reader, codebase-learner, api-explorer, news-curator
+AUTOMATION: task-decomposer, notification-router, context-preloader, conversation-summarizer
+
+## API Integrations
+Trading Agents:
+- CoinGecko API — Price data and market metrics
+- Twitter/X API — Sentiment analysis data
+- Etherscan/BSCScan — Blockchain transaction monitoring
+- DeFiPulse API — DeFi protocol metrics
+
+Social Agents:
+- Twitter/X API — Engagement metrics and posting
+- LinkedIn API — Professional content management
+- Discord API — Community engagement tracking
+
+System Agents:
+- GitHub API — Repository analysis and documentation
+- AlertManager API — System alert routing
+- Prometheus API — Metrics collection and analysis
+
+## Behavioral Markers
+MARKER: agents/ directory with 15+ subdirectories indicates full collection
+MARKER: scripts/ subdirectories indicate implementation completion
+MARKER: config.yaml files indicate agent-specific configuration
+MARKER: Cortex categories with "agent" prefix indicate memory integration
+MARKER: ~/.openclaw/workspace/skills/ symlinks indicate installed agents
+MARKER: High importance (2.0+) Cortex entries indicate agent insights
+MARKER: Multiple concurrent agent processes indicate active automation
+MARKER: API rate limit errors indicate high-frequency agent activity
+
+## Installation Commands
+# Install specific agent
+ln -s ~/Projects/helios-agents/agents/goal-tracker ~/.openclaw/workspace/skills/
+
+# Install all trading agents
+for agent in market-sentiment-analyst whale-tracker portfolio-rebalancer; do
+  ln -s ~/Projects/helios-agents/agents/$agent ~/.openclaw/workspace/skills/
+done
+
+# Install full collection
+ln -s ~/Projects/helios-agents/agents/* ~/.openclaw/workspace/skills/
+
+## Configuration Keys (Agent-Specific)
+# Trading agents
+COINGECKO_API_KEY: Cryptocurrency market data
+TWITTER_API_KEY: Social sentiment analysis
+ETHERSCAN_API_KEY: Blockchain data access
+
+# Social agents  
+TWITTER_BEARER_TOKEN: Social media posting
+LINKEDIN_CLIENT_ID: Professional network access
+DISCORD_BOT_TOKEN: Community management
+
+# System agents
+GITHUB_TOKEN: Repository access
+PROMETHEUS_URL: Metrics collection endpoint
+ALERTMANAGER_URL: Alert routing service
+
+## Agent Activation Patterns
+# Goal-driven activation
+grep -r "goal.*achieved\|milestone.*reached" ~/.openclaw/workspace/memory/
+
+# Market-triggered activation  
+grep -r "whale.*movement\|arbitrage.*opportunity" ~/.openclaw/workspace/memory/
+
+# Time-based activation
+grep -r "scheduled.*activation\|calendar.*trigger" ~/.openclaw/workspace/memory/
+
+# Event-driven activation
+grep -r "alert.*threshold\|anomaly.*detected" ~/.openclaw/workspace/memory/
+
+## Resource Conflict Resolution
+# Check active agents
+ps aux | grep -E "(market-sentiment|whale-tracker|goal-tracker)" | wc -l
+
+# Resource usage monitoring
+top -p $(pgrep -f "agents/" | tr '\n' ',' | sed 's/,$//')
+
+# Memory usage by agent category
+grep -r "cortex_add.*agent" ~/.openclaw/workspace/memory/ | cut -d: -f1 | sort | uniq -c
+
+# Agent coordination logs
+tail -f ~/.openclaw/logs/agents.log | grep -E "(conflict|coordination|resource)"

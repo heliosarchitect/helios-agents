@@ -1,0 +1,94 @@
+# Helios Agents — Documentation TOC
+## Source Files
+- README.md — Agent collection overview and installation guide
+- CONTRIBUTING.md — Agent development guidelines and standards
+
+## Trading & Finance Agents
+- agents/market-sentiment-analyst/ — Social/news sentiment → trading signals
+  - scripts/sentiment_analyzer.py — Main sentiment analysis engine
+  - config.yaml — Data sources and signal thresholds
+- agents/whale-tracker/ — Monitor large wallet movements
+  - scripts/whale_monitor.py — Blockchain wallet tracking
+  - scripts/alert_generator.py — Movement threshold alerts
+- agents/portfolio-rebalancer/ — Automated rebalancing suggestions  
+  - scripts/rebalance_calculator.py — Portfolio optimization logic
+  - scripts/risk_analyzer.py — Risk assessment algorithms
+- agents/dex-arbitrage-scout/ — Cross-DEX arbitrage finder
+  - scripts/arbitrage_scanner.py — Price difference detection
+  - scripts/profit_calculator.py — Gas fee adjusted profit calc
+- agents/tokenomics-analyst/ — Token supply/vesting analysis
+  - scripts/token_analyzer.py — Supply schedule analysis
+  - scripts/vesting_tracker.py — Team/investor unlock tracking
+- agents/tax-lot-optimizer/ — Tax-efficient trade suggestions
+  - scripts/tax_optimizer.py — FIFO/LIFO/specific-ID optimization
+  - scripts/wash_sale_detector.py — Wash sale rule compliance
+
+## Self-Improvement Agents
+- agents/self-reflection-coach/ — Learn from mistakes, identify patterns
+  - scripts/reflection_analyzer.py — Pattern recognition in failures
+  - scripts/improvement_suggester.py — Actionable improvement plans
+- agents/goal-tracker/ — Long-term goals → milestones → progress
+  - scripts/goal_manager.py — Goal decomposition and tracking
+  - scripts/milestone_checker.py — Progress monitoring
+- agents/capability-gap-analyzer/ — Identify skill gaps
+  - scripts/gap_analyzer.py — Capability assessment
+  - scripts/learning_planner.py — Learning path recommendations
+- agents/prompt-self-improver/ — Optimize prompts/approaches
+  - scripts/prompt_optimizer.py — A/B test prompt variations
+  - scripts/effectiveness_tracker.py — Prompt performance metrics
+
+## Social & Content Agents
+- agents/engagement-optimizer/ — A/B test post styles
+  - scripts/engagement_tracker.py — Social media metrics analysis
+  - scripts/style_optimizer.py — Content style optimization
+- agents/thread-composer/ — Ideas → structured narratives  
+  - scripts/narrative_builder.py — Thread structure generation
+  - scripts/flow_optimizer.py — Engagement flow optimization
+- agents/content-calendar/ — Scheduled posting
+  - scripts/calendar_manager.py — Content scheduling system
+  - scripts/timing_optimizer.py — Optimal posting time analysis
+- agents/reply-prioritizer/ — Triage mentions by importance
+  - scripts/priority_scorer.py — Mention importance scoring
+  - scripts/response_scheduler.py — Reply prioritization
+
+## DevOps & System Agents
+- agents/health-monitor/ — Service health checks & alerts
+  - scripts/service_monitor.py — System health monitoring
+  - scripts/alert_manager.py — Alert routing and escalation
+- agents/log-analyst/ — Parse logs, detect anomalies
+  - scripts/log_parser.py — Log pattern analysis
+  - scripts/anomaly_detector.py — Statistical anomaly detection
+- agents/config-auditor/ — Security review & hardening
+  - scripts/security_scanner.py — Configuration vulnerability scan
+  - scripts/hardening_advisor.py — Security improvement suggestions
+- agents/backup-manager/ — Critical data backups
+  - scripts/backup_scheduler.py — Automated backup orchestration
+  - scripts/integrity_checker.py — Backup validation and testing
+
+## Research & Learning Agents
+- agents/paper-reader/ — Summarize research papers
+  - scripts/paper_analyzer.py — Academic paper processing
+  - scripts/summary_generator.py — Key insight extraction
+- agents/codebase-learner/ — Deep-dive unfamiliar repos
+  - scripts/code_analyzer.py — Repository structure analysis
+  - scripts/pattern_extractor.py — Code pattern identification
+- agents/api-explorer/ — Discover & document APIs
+  - scripts/api_scanner.py — Endpoint discovery
+  - scripts/documentation_generator.py — API documentation creation
+- agents/news-curator/ — Filter & summarize daily news
+  - scripts/news_aggregator.py — Multi-source news collection
+  - scripts/relevance_filter.py — Content relevance scoring
+
+## Automation Agents
+- agents/task-decomposer/ — Break complex tasks into subtasks
+  - scripts/task_analyzer.py — Task complexity analysis
+  - scripts/subtask_generator.py — Task breakdown logic
+- agents/notification-router/ — Route alerts by urgency
+  - scripts/urgency_classifier.py — Alert priority classification
+  - scripts/routing_engine.py — Channel-based alert routing
+- agents/context-preloader/ — Anticipate & prefetch context
+  - scripts/context_predictor.py — Context need prediction
+  - scripts/prefetch_manager.py — Proactive context loading
+- agents/conversation-summarizer/ — Session summary generation
+  - scripts/conversation_analyzer.py — Conversation flow analysis
+  - scripts/summary_composer.py — Key point extraction

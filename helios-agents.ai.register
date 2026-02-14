@@ -1,0 +1,37 @@
+# Helios Agents — AI Version Register
+CURRENT VERSION: 1.3.0
+## Active Features
+FEATURE: Multi-Category Agent Collection (v1.3)
+  SIGNATURE: agents/ directory with 15+ specialized agents across 6 categories
+  FAILURE MODE: Agent loading conflicts, dependency resolution issues
+  ROLLBACK: Remove problematic agents from skills directory
+
+FEATURE: Trading & Finance Agents (v1.2)
+  SIGNATURE: market-sentiment-analyst/, whale-tracker/, portfolio-rebalancer/ agents
+  FAILURE MODE: API rate limits, market data feed failures
+  ROLLBACK: Disable trading agents, use manual analysis only
+
+FEATURE: Self-Improvement Agents (v1.1)
+  SIGNATURE: self-reflection-coach/, goal-tracker/, capability-gap-analyzer/
+  FAILURE MODE: Infinite self-analysis loops, goal conflict resolution
+  ROLLBACK: Limit self-improvement agent activation frequency
+
+FEATURE: Cortex Integration (v1.0)
+  SIGNATURE: All agents use cortex_add for insights with importance scoring 2.0+
+  FAILURE MODE: Memory system unavailable, category conflicts
+  ROLLBACK: Use local file storage instead of Cortex
+
+## Known Bugs
+BUG: Agent dependency conflicts
+  SYMPTOMS: Multiple agents trying to use same resources simultaneously
+  WORKAROUND: Sequential agent execution with resource locking
+
+BUG: Memory category overload
+  SYMPTOMS: Too many categories created, search performance degradation
+  WORKAROUND: Consolidate related categories, use hierarchical naming
+
+## Bug Fix History
+2026-02-13: Fixed agent symlink installation script
+2026-02-12: Added proper Cortex category management
+2026-02-11: Implemented agent resource conflict resolution
+2026-02-10: Enhanced trading agent API integration
