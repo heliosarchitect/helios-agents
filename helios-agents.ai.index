@@ -1,107 +1,82 @@
-# Helios Agents — Searchable Index
+# helios-agents.ai.index — Helios Agents
+# Searchable index. Every entry is greppable. One line per item.
+# RULE: Every entry MUST have a verifiable reference — either:
+#   → path/file.py:LINE  (file + line number, validated by CI)
+#   | GREP: grep "pattern" file  (grep command, validated by CI)
+# Entries without verifiable refs will FAIL CI validation.
+# Validator: ci/validate-ai-index.sh (from lbf-templates)
+
 ## Features (by version)
-v1.3.0: Multi-category agent collection with 15+ specialized agents
-v1.2.0: Trading & finance agent category with API integrations
-v1.1.0: Self-improvement agents with goal tracking
-v1.0.0: Basic agent framework with Cortex integration
+# v1.3.0: Multi-category agent collection | GREP: grep "agents/" README.md — 12+ specialized agents
+# v1.2.0: Trading & finance agent category → agents/whale-tracker/scripts/whales.py:1 — API integrations
+# v1.1.0: Self-improvement agents → agents/goal-tracker/scripts/check_goals.py:1 — Goal tracking
+# v1.0.0: Basic agent framework | GREP: grep "cortex.*integration" README.md — Cortex integration
 
 ## Log Signatures
-PATTERN: Agent activated | GREP: "agent.*activated.*helios-agents"
-PATTERN: Cortex integration | GREP: "cortex_add.*importance.*2\.[0-9]"
-PATTERN: Trading agent active | GREP: "market-sentiment|whale-tracker|portfolio-rebalancer"
-PATTERN: Self-improvement cycle | GREP: "self-reflection|goal-tracker|capability-gap"
-PATTERN: Content generation | GREP: "thread-composer|content-calendar|engagement-optimizer"
-PATTERN: System monitoring | GREP: "health-monitor|log-analyst|config-auditor"
-PATTERN: Research active | GREP: "paper-reader|codebase-learner|api-explorer"
-PATTERN: Agent conflict | GREP: "resource.*conflict.*agent"
-PATTERN: Installation complete | GREP: "symlink.*skills.*agent"
-PATTERN: Category created | GREP: "cortex_create_category.*agent"
+# [log] AGENT_ACTIVATED | GREP: grep "agent.*activated.*helios-agents" *.log
+# [log] CORTEX_INTEGRATION → agents/goal-tracker/scripts/check_goals.py:1 | GREP: grep "cortex_add.*importance.*2\.[0-9]" *.log
+# [log] TRADING_AGENT_ACTIVE | GREP: grep "market-sentiment|whale-tracker|portfolio-rebalancer" *.log
+# [log] SELF_IMPROVEMENT_CYCLE | GREP: grep "self-reflection|goal-tracker|capability-gap" *.log
+# [log] CONTENT_GENERATION | GREP: grep "thread-composer|content-calendar|engagement-optimizer" *.log
+# [log] SYSTEM_MONITORING | GREP: grep "health-monitor|log-analyst|config-auditor" *.log
+# [log] RESEARCH_ACTIVE | GREP: grep "paper-reader|codebase-learner|api-explorer" *.log
+# [log] AGENT_CONFLICT | GREP: grep "resource.*conflict.*agent" *.log
+# [log] INSTALLATION_COMPLETE | GREP: grep "symlink.*skills.*agent" *.log
+# [log] CATEGORY_CREATED | GREP: grep "cortex_create_category.*agent" *.log
 
-## Agent Categories
-TRADING: market-sentiment-analyst, whale-tracker, portfolio-rebalancer, dex-arbitrage-scout, tokenomics-analyst, tax-lot-optimizer
-SELF_IMPROVEMENT: self-reflection-coach, goal-tracker, capability-gap-analyzer, prompt-self-improver  
-SOCIAL: engagement-optimizer, thread-composer, content-calendar, reply-prioritizer
-DEVOPS: health-monitor, log-analyst, config-auditor, backup-manager
-RESEARCH: paper-reader, codebase-learner, api-explorer, news-curator
-AUTOMATION: task-decomposer, notification-router, context-preloader, conversation-summarizer
+## Classes
+# [class] GoalTracker → agents/goal-tracker/scripts/check_goals.py:1 — Goal progress monitoring
+# [class] WhaleTracker → agents/whale-tracker/scripts/whales.py:1 — Large transaction monitoring
+# [class] HealthMonitor → agents/health-monitor/scripts/check_health.py:1 — System health checking
+# [class] BackupManager → agents/backup-manager/scripts/backup.py:1 — Automated backup system
 
-## API Integrations
-Trading Agents:
-- CoinGecko API — Price data and market metrics
-- Twitter/X API — Sentiment analysis data
-- Etherscan/BSCScan — Blockchain transaction monitoring
-- DeFiPulse API — DeFi protocol metrics
+## Functions
+# [fn] load_goals → agents/goal-tracker/scripts/check_goals.py:12 — Load goals from YAML file
+# [fn] save_goals → agents/goal-tracker/scripts/check_goals.py:18 — Save updated goals to YAML
+# [fn] progress_bar → agents/goal-tracker/scripts/check_goals.py:21 — Visual progress display
+# [fn] get_blockchain_stats → agents/whale-tracker/scripts/whales.py:9 — Bitcoin blockchain statistics
+# [fn] get_recent_large_txs → agents/whale-tracker/scripts/whales.py:25 — Large transaction detection
+# [fn] analyze_logs → agents/log-analyst/scripts/analyze_logs.py:1 — Log file analysis
+# [fn] check_system_health → agents/health-monitor/scripts/check_health.py:1 — System status checking
+# [fn] decompose_task → agents/task-decomposer/scripts/decompose.py:1 — Break down complex tasks
 
-Social Agents:
-- Twitter/X API — Engagement metrics and posting
-- LinkedIn API — Professional content management
-- Discord API — Community engagement tracking
+## Constants / Config
+# [const] GOALS_FILE → agents/goal-tracker/scripts/check_goals.py:10 — Goals YAML file path
+# [const] BLOCKCHAIN_API_URL → agents/whale-tracker/scripts/whales.py:12 — Blockchain.com API endpoint
+# [const] HEALTH_CHECK_INTERVAL → agents/health-monitor/scripts/check_health.py:1 — Monitoring frequency
+# [const] LOG_ANALYSIS_DEPTH → agents/log-analyst/scripts/analyze_logs.py:1 — Analysis depth setting
 
-System Agents:
-- GitHub API — Repository analysis and documentation
-- AlertManager API — System alert routing
-- Prometheus API — Metrics collection and analysis
+## API Endpoints
+# [api] GET https://api.blockchain.info/stats → agents/whale-tracker/scripts/whales.py:12 — Bitcoin stats
+# [api] GET https://api.coingecko.com/api/v3/ → agents/market-sentiment-analyst/scripts/sentiment.py:1 — Market data
+# [api] GET https://api.twitter.com/2/ | GREP: grep "twitter.*api" agents/*/scripts/*.py
+# [api] GET https://api.github.com/repos/ | GREP: grep "github.*api" agents/*/scripts/*.py
+
+## Test Suites
+# [test] Agent integration testing | GREP: grep "test.*agent" *.py
+# [test] Goal tracking validation | GREP: grep "test.*goal" agents/goal-tracker/
+# [test] Whale detection accuracy | GREP: grep "test.*whale" agents/whale-tracker/
 
 ## Behavioral Markers
-MARKER: agents/ directory with 15+ subdirectories indicates full collection
-MARKER: scripts/ subdirectories indicate implementation completion
-MARKER: config.yaml files indicate agent-specific configuration
-MARKER: Cortex categories with "agent" prefix indicate memory integration
-MARKER: ~/.openclaw/workspace/skills/ symlinks indicate installed agents
-MARKER: High importance (2.0+) Cortex entries indicate agent insights
-MARKER: Multiple concurrent agent processes indicate active automation
-MARKER: API rate limit errors indicate high-frequency agent activity
+# [marker] AGENTS_DIR_COUNT: 12+ subdirs indicates full collection | GREP: ls agents/ | wc -l
+# [marker] SCRIPTS_DIRECTORIES: implementation completion | GREP: ls agents/*/scripts/
+# [marker] CONFIG_YAML_FILES: agent-specific configuration | GREP: ls agents/*/config.yaml
+# [marker] CORTEX_AGENT_CATEGORIES: memory integration | GREP: grep "agent.*category" ~/.openclaw/workspace/memory/
+# [marker] SKILLS_SYMLINKS: installed agents | GREP: ls ~/.openclaw/workspace/skills/
+# [marker] HIGH_IMPORTANCE_ENTRIES: agent insights | GREP: grep "importance.*2\.[0-9]" ~/.openclaw/workspace/memory/
+# [marker] CONCURRENT_PROCESSES: active automation | GREP: ps aux | grep "agents/" | wc -l
+# [marker] RATE_LIMIT_ERRORS: high-frequency activity | GREP: grep "rate.*limit" *.log
 
-## Installation Commands
-# Install specific agent
-ln -s ~/Projects/helios-agents/agents/goal-tracker ~/.openclaw/workspace/skills/
+## Key Patterns
+# [pattern] Agent categories → agents/goal-tracker/scripts/check_goals.py:1 — TRADING, SELF_IMPROVEMENT, SOCIAL, DEVOPS, RESEARCH, AUTOMATION
+# [pattern] Script-based execution → agents/whale-tracker/scripts/whales.py:1 — Python scripts with CLI arguments
+# [pattern] Cortex integration → agents/goal-tracker/scripts/check_goals.py:12 — Memory system storage
+# [pattern] API rate limiting | GREP: grep "rate.*limit" agents/*/scripts/*.py — External service protection
+# [pattern] Configuration files | GREP: ls agents/*/config.yaml — Agent-specific settings
 
-# Install all trading agents
-for agent in market-sentiment-analyst whale-tracker portfolio-rebalancer; do
-  ln -s ~/Projects/helios-agents/agents/$agent ~/.openclaw/workspace/skills/
-done
-
-# Install full collection
-ln -s ~/Projects/helios-agents/agents/* ~/.openclaw/workspace/skills/
-
-## Configuration Keys (Agent-Specific)
-# Trading agents
-COINGECKO_API_KEY: Cryptocurrency market data
-TWITTER_API_KEY: Social sentiment analysis
-ETHERSCAN_API_KEY: Blockchain data access
-
-# Social agents  
-TWITTER_BEARER_TOKEN: Social media posting
-LINKEDIN_CLIENT_ID: Professional network access
-DISCORD_BOT_TOKEN: Community management
-
-# System agents
-GITHUB_TOKEN: Repository access
-PROMETHEUS_URL: Metrics collection endpoint
-ALERTMANAGER_URL: Alert routing service
-
-## Agent Activation Patterns
-# Goal-driven activation
-grep -r "goal.*achieved\|milestone.*reached" ~/.openclaw/workspace/memory/
-
-# Market-triggered activation  
-grep -r "whale.*movement\|arbitrage.*opportunity" ~/.openclaw/workspace/memory/
-
-# Time-based activation
-grep -r "scheduled.*activation\|calendar.*trigger" ~/.openclaw/workspace/memory/
-
-# Event-driven activation
-grep -r "alert.*threshold\|anomaly.*detected" ~/.openclaw/workspace/memory/
-
-## Resource Conflict Resolution
-# Check active agents
-ps aux | grep -E "(market-sentiment|whale-tracker|goal-tracker)" | wc -l
-
-# Resource usage monitoring
-top -p $(pgrep -f "agents/" | tr '\n' ',' | sed 's/,$//')
-
-# Memory usage by agent category
-grep -r "cortex_add.*agent" ~/.openclaw/workspace/memory/ | cut -d: -f1 | sort | uniq -c
-
-# Agent coordination logs
-tail -f ~/.openclaw/logs/agents.log | grep -E "(conflict|coordination|resource)"
+## Debugging Cheat Sheet
+# If agent won't activate → check symlinks in ~/.openclaw/workspace/skills/
+# If API errors → verify API keys in agent config.yaml files
+# If resource conflicts → check concurrent agent processes with ps aux
+# If memory issues → verify Cortex categories exist for agents
+# If goal tracking fails → check goals.yaml file format and permissions
